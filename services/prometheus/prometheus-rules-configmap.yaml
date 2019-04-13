@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+data:
+  LoadAverage.yml: |+
+    - name: LoadAverage
+      rules:
+      - alert: LoadAverage
+        expr: system_load1/system_n_cpus > 90
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance's {{ $labels.host }} LoadAverage is more then 90%."
+          description: "{{ $labels.host }} has LoadAverage {{ $value }}%.\nhttp://pi-1:3000/d/92nqF_Kmz/system-product-dashboard?refresh=1m&orgId=1&var-host={{ $labels.host }}"
+
+  UsedCpu.yml: |+
+    groups:
+    - name: UsedCpu
+      rules:
+      - alert: UsedCpu
+        expr: 100 - cpu_usage_idle{cpu="cpu-total"} > 90
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance's {{ $labels.host }} UsedCpu is more then 90%."
+          description: "{{ $labels.host }} has UsedCpu more then {{ 100 - $value }}%.\nhttp://pi-1:3000/d/92nqF_Kmz/system-product-dashboard?refresh=1m&orgId=1&var-host={{ $labels.host }}"
+
+  UsedRam.yml: |+
+    groups:
+    - name: UsedRam
+      rules:
+      - alert: UsedRam
+        expr: mem_used_percent > 95
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance's {{ $labels.host }} UsedRam is more then 95%."
+          description: "{{ $labels.host }} has UsedRam {{ $value }}%.\nhttp://pi-1:3000/d/92nqF_Kmz/system-product-dashboard?refresh=1m&orgId=1&var-host={{ $labels.host }}"
+
+  DiskQueueOnDisk.yml: |+
+    groups:
+    - name: DiskQueueOnDisk
+      rules:
+      - alert: DiskQueueOnDisk
+        expr: diskio_iops_in_progress > 500
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance's {{ $labels.host }} disk subsystem's {{$labels.name}} queue is more then 500."
+          description: "Instance's {{ $labels.host }} disk subsystem's {{$labels.name}} queue equals to {{ $value }}.\nhttp://pi-1:3000/d/92nqF_Kmz/system-product-dashboard?refresh=1m&orgId=1&var-host={{ $labels.host }}&var-disk={{$labels.name}}"
+
+  DiskUsageOnMountPoint.yml: |+
+    groups:
+    - name: DiskUsageOnMountPoint
+      rules:
+      - alert: DiskUsageFromOnMountPoint
+        expr: disk_used_percent > 90
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance's {{ $labels.host }} disk subsystem {{$labels.device}} mounted to {{$labels.path}} is filled on more then 90%."
+          description: "Instance's {{ $labels.host }} disk subsystem {{$labels.device}} mounted to {{$labels.path}} is filled on {{ $value }}%.\nhttp://pi-1:3000/d/92nqF_Kmz/system-product-dashboard?refresh=1m&orgId=1&var-host={{ $labels.host }}&var-disk={{$labels.device}}&var-mount=%2F{{$labels.path}}"
+
+  InstanceDown.yml: |+
+    groups:
+    - name: InstanceDown
+      rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.instance }} has been down for more than 1 minutes.\nhttp://pi-1:3000/d/WkVfw_Fiz/systems-overall?orgId=1"
+  NetErrorsOnNic.yml: |+
+    groups:
+    - name: NetErrorsOnNic
+      rules:
+      - alert: NetErrorsOnNics
+        expr: irate(net_err_in[5m]) > 3 or irate(net_err_out[5m]) > 3
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance's {{ $labels.host }} network interface {{$labels.interface}} has more then 3 errors."
+          description: "Instance's {{ $labels.host }} network interface {{$labels.interface}} has {{ $value }} errors.\nhttp://pi-1:3000/d/92nqF_Kmz/system-product-dashboard?refresh=1m&orgId=1&var-host={{ $labels.host }}&var-interface={{$labels.interface}}"
+
+  UsedSwapSpace.yml: |+
+    groups:
+    - name: UsedSwapSpace
+      rules:
+      - alert: UsedSwapSpace
+        expr: swap_used_percent > 75
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance's {{ $labels.host }} UsedSwapSpace is more then 75%."
+          description: "{{ $labels.host }} has UsedSwapSpace {{ $value }}%.\nhttp://pi-1:3000/d/92nqF_Kmz/system-product-dashboard?refresh=1m&orgId=1&var-host={{ $labels.host }}"
