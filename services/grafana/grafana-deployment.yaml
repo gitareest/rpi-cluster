@@ -1,14 +1,16 @@
-apiVersion: v1
-kind: ReplicationController
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: grafana
+  labels:
+    app: grafana
 spec:
   replicas: 1
   selector:
-    app: grafana
+    matchLabels:
+      app: grafana
   template:
     metadata:
-      name: grafana
       labels:
         app: grafana
     spec:
